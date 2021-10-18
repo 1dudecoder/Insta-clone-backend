@@ -14,9 +14,10 @@ router.get("/mypost",requireLogin,(req,res)=>{
     })
 })
 
-router.get("/allpost",(req,res)=>{
+router.get("/allpost",requireLogin,(req,res)=>{
     Post.find()
     .populate("postedBy","__id name")
+    .populate("comments.postedBy","name _id ")
     .then((posts)=>{
         res.json({posts})
     })
@@ -50,6 +51,59 @@ router.post('/createpost',requireLogin,(req,res)=>{
         })
 })
 
+router.put("/like",requireLogin,(req,res)=>{
+    //phele post id se id nikali esse pta chlega konsa post tha 
+    Post.findByIdAndUpdate(req.body.postId,{
+        $push:{likes:req.user._id}
+        //push se hum array mai push krengye likes wale mai user ki id jo pheli se login hone pr server ne store kr k rkhi thi login required k ander dekho 
+    },{
+        new:true
+    }).exec((err,result)=>{
+        if(err){
+            return res.status(422).json({error:err})
+        }else{
+            res.json(result)
+        }
+    })
+})
+
+router.put("/unlike",requireLogin,(req,res)=>{
+    //phele post id se id nikali esse pta chlega konsa post tha 
+    Post.findByIdAndUpdate(req.body.postId,{
+        //push se hum array mai push krengye likes wale mai user ki id jo pheli se login hone pr server ne store kr k rkhi thi login required k ander dekho 
+        $pull:{likes:req.user._id}
+    },{
+        new:true
+    }).exec((err,result)=>{
+        if(err){
+            return res.status(422).json({error:err})
+        }else{
+            res.json(result)
+        }
+    })
+})
+
+
+router.put("/comment",requireLogin,(req,res)=>{
+    const comment = {
+        text:req.body.text,
+        postedBy:req.user._id
+    }
+    Post.findByIdAndUpdate(req.body.postId,{
+        $push:{comments:comment}
+    },{
+        new:true
+    })
+    .populate("comments.postedBy","name _id ")
+    .populate("postedBy","__id name")
+    .exec((err,result)=>{
+        if(err){
+            return res.status(422).json({error:err})
+        }else{
+            res.json(result)
+        }
+    })
+})
 
 
 
