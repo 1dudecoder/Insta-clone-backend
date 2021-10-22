@@ -7,6 +7,7 @@ const User = require("./models/user")
 
 const authrouter = require("./routes/auth");
 const postrouter = require("./routes/post");
+const userrouter = require("./routes/user")
 
 //connecting
 mongoose.connect(MONGOURL,{
@@ -24,7 +25,7 @@ mongoose.connect(MONGOURL,{
 app.use(express.json());
 app.use(authrouter);
 app.use(postrouter);
-
+app.use(userrouter);
 
 
 //listiner
