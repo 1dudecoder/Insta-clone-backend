@@ -14,10 +14,6 @@ const {JWT_SECRET} = require("../keys")
 const User = require("../models/user");
 
 
-// router.get('/protected',requireLogin,(req,res)=>{
-//     res.send("hellow welcome to protected resourse");
-// })
-
 router.get("/",(req,res)=>{
     res.send("weclome to home page")
 })
@@ -59,6 +55,7 @@ router.post("/signin",(req,res)=>{
     } 
     User.findOne({email:email})
         .then((saveduser)=>{ 
+            console.log(saveduser)
             if(!saveduser){
                 return res.status(422).json({error:"Invaild Email or Password"})
             }
@@ -66,8 +63,8 @@ router.post("/signin",(req,res)=>{
                 if(domatch){
                     // res.json({message :"successfully login"})
                     const token = jwt.sign({_id: saveduser._id},JWT_SECRET);
-                    const {_id,name,email} = saveduser;
-                    res.json({token,user:{_id,name,email}})
+                    const {_id,name,email,followers,following} = saveduser;
+                    res.json({token,user:{_id,name,email,followers,following}})
                 }else{
                     return res.status(422).json({error:"Invaild Email or Password"})
                 }
